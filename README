@@ -1,0 +1,41 @@
+    =======================
+    python docstyle checker
+    =======================
+
+A tool for automaticaly checking for the formatting errors in 
+python PyDocs as designed for usage in epydoc.
+
+A basic example is:
+
+def foo(bar, baz=None):
+    '''
+    This function does foo by bar and baz.
+
+    @raise Exception: If we do something unexpected.
+
+    @type  bar: str
+    @param bar: Bar is used for doing foo.
+    @type  baz: dict
+    @param baz: Foo looks into baz (optional).
+    
+    @rtype:  str
+    @return: Fooed baz.
+    '''
+    if type(baz) is not str:
+        # Something unexpected.
+        raise Exception('This was not expected.')
+    return 'foo[%s]' % bar
+
+
+This example shows what kind of notation is expected from the developer.
+
+INSTALLATION
+------------
+
+DocStyle module requires antlr3 runtime. It can be downloaded at
+http://www.antlr.org/download/Python
+
+There is no easy_install support or .egg format yet.
+
+wbr,
+Y.Y.
