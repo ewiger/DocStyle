@@ -18,7 +18,7 @@ class DocStyle:
 
     def parse(self):
         '''
-        Parse doc string using generated lexer and parser
+        Parse doc string using generated lexer and parser.
         
         @return: None
         '''
@@ -29,7 +29,8 @@ class DocStyle:
         rule = parser.docString()
 
 if __name__ == '__main__':
-    #doc_string = DocStyle.parse.__doc__
-    doc_string = '@taggy: bunny'
+    doc_string = DocStyle.parse.__doc__
+    #doc_string = '@taggy: bunny'
+    doc_string = unicode(doc_string)
     print doc_string
     DocStyle(doc_string).parse()

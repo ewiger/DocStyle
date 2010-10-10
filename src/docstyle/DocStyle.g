@@ -2,38 +2,119 @@ grammar DocStyle;
 
 options {
   language=Python;
-  k=5;
+  //k=5;
   //backtrack=true;
 }
 
 @lexer::members {
-    tagMode = True
+    tagMode = False
 }
 
-docString : tag+;
+//docString : (s=sentence {print 'sentence is |' + $s.text + '|'})+ EOF;
+//docString : head ({print 'tag'} tag description)+ EOF;
+docString : head tag_sections EOF;
 
-tag : TAG_OPEN id=ID {print $id.text} TAG_CLOSE; 
+head: LINE_BREAK description LINE_BREAK;
 
-TAG_OPEN : '@' { self.tagMode = True } ;
+description 
+    : (s=SENTENCE {print 'sentence is |' + $s.text + '|'})+
+    ;
 
-TAG_CLOSE : ':' { self.tagMode = False } ;
+SENTENCE : WORD (' '+ WORD)+ DOT;
 
-ID : {self.tagMode}?=> (LETTER | '_') (NAMECHAR)* ;
+WORD: (OTHER_CHAR )+;
 
+tag_sections
+    : /*etc_section?*/ param_section? return_section
+    ;
+    
+
+param_section
+    : LINE_BREAK (tag_type LINE_BREAK tag_param)+ LINE_BREAK 
+    ;
+
+tag_type
+    : '@type ' paramName=ID ': ' typeName=ID
+    ;
+
+tag_param
+    : '@param ' paramName=ID ': ' desc=description
+    ;
+
+return_section
+    : LINE_BREAK '@return: ' ('None' {print 'None'} | description) LINE_BREAK
+    ;
+
+tag 
+    : TAG_OPEN id=ID {print $id.type;print $id.text} TAG_CLOSE NO_LINE_BREAK* LINE_BREAK
+    ; 
+
+/*
+WORD : (WORDCHAR)*;
+
+fragment WORDCHAR
+    : LETTER | DIGIT | '-' | '_'
+    ;
+*/
+
+// Sentence lexing
+
+DOT 
+    : '.'
+    ;
+
+
+// Type tag
+
+// TODO: put here builtin python types
+
+// Unknown tag
+TAG_OPEN 
+    : '@' { self.tagMode = True }    
+    ;
+
+TAG_CLOSE 
+    : {self.tagMode}?=> 
+      ':' { self.tagMode = False } 
+    ;
+
+ID 
+    : {self.tagMode}?=> 
+      {print 'ID'}
+      (LETTER | '_') (NAMECHAR)* 
+    ;
 
 fragment NAMECHAR
-    : LETTER | DIGIT | '.' | '-' | '_'
+    : {self.tagMode}?=> 
+      LETTER | DIGIT | DOT | '-' | '_'
     ;
 
 fragment DIGIT
-    :    '0'..'9'
+    : {self.tagMode}?=> 
+         '0'..'9'
     ;
 
 fragment LETTER
-    : 'a'..'z'
+    : {self.tagMode}?=> 
+      'a'..'z'
     | 'A'..'Z'
     ;
 
-WS  :  {self.tagMode}?=>
-       (' '|'\r'|'\t'|'\u000C'|'\n') {channel=99;}
+// Common lexing
+
+LINE_BREAK
+    :  ('\r'? '\n') //{$channel=HIDDEN;}
     ;
+
+WS  
+    :  (' '|'\t'|'\u000C') {$channel=HIDDEN;}
+    ;
+
+fragment OTHER_CHAR
+    :    ~('@'|'.'|' '|'\t'|'\u000C'|'\r'|'\n')
+    ;
+
+fragment NO_LINE_BREAK
+    :    ~('\r'|'\n')
+    ;
+
